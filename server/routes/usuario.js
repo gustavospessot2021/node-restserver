@@ -48,7 +48,7 @@ app.put('/usuario/:id', function(req, res) {
 });
 
 app.delete('/usuario', function(req, res) {
-    res.json('PETICION delete Usuario')
+    res.json('PETICION: delete Usuario')
 });
 
 app.get('/hola', function(req, res) {
