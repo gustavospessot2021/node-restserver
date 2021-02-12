@@ -1,5 +1,7 @@
 const express = require('express');
 
+const Usuario = require('../models/usuario');
+
 const app = express();
 
 app.get('/', function(req, res) {
@@ -14,6 +16,7 @@ app.post('/usuario', function(req, res) {
 
     let body = req.body;
 
+
     if (body.nombre === undefined) {
         res.status(400).json({
             ok: false,
@@ -21,10 +24,36 @@ app.post('/usuario', function(req, res) {
             error: 'El nombre es necesario'
         });
     } else {
-        res.json({
-            request_URL: 'post Usuario',
-            user_passed: body
+        // res.json({
+        //     //request_URL: 'post Usuario',
+        //     user_passed: body
+        // });
+
+        let usuario = new Usuario({
+            nombre: body.nombre,
+            email: body.email,
+            password: body.password,
+            role: body.role
         });
+
+        usuario.save((err, usuarioDB) => {
+            if (err) {
+                return res.status(400).json({
+                    ok: false,
+                    estado: 'Error al grabar usuario en BD',
+                    error: err
+                });
+            }
+
+            res.json({
+                ok: true,
+                usuario_saved_in_DB: usuarioDB,
+
+            });
+
+        });
+
+
     }
 
 });
