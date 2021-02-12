@@ -1,6 +1,10 @@
 require('./config/config');
 
-const express = require('express')
+
+const express = require('express');
+const mongoose = require('mongoose');
+const colors = require('colors');
+
 const app = express()
 const bodyParser = require('body-parser')
 
@@ -10,67 +14,53 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
-const puerto = process.env.PORT;
+app.use(require('./routes/usuario.js'));
+
+const puerto = process.env.PORT; // ver en config/config.js
 // const puerto = 3000;
 
-app.get('/', function(req, res) {
-    res.json('Pagina Home')
-});
+// ============================
+// Puerto de la Base de Datos
+// ============================
+const puertoDB = 27017; // Correcta = 27017
 
-app.get('/usuario', function(req, res) {
-    res.json('get Usuario')
-});
+// ===========================
+// Nombre de la Base de Datos
+// ===========================
+const nombreDB = 'cafe';
 
-app.post('/usuario', function(req, res) {
 
-    let body = req.body;
+mongoose.connect(`mongodb://localhost:${puertoDB}/${nombreDB}`, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true
+}, (err, respuesta) => {
 
-    if (body.nombre === undefined) {
-        res.status(400).json({
-            ok: false,
-            estado: 'Error en Datos pasados en el body',
-            error: 'El nombre es necesario'
-        });
-    } else {
-        res.json({
-            request_URL: 'post Usuario',
-            cuerpo_Pasado: body
-        });
+    if (err) {
+        console.log(`!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`.bgRed.white);
+        console.log(`No se pudo conectar a la Base de Datos!!!`.red);
+        console.log(`!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`.bgRed.white);
+        throw new Error(err);
     }
 
+    let mens = `Base de datos <${nombreDB}> ONLINE en el puerto ${puertoDB}`;
+
+    console.log(mens.green);;
+    // console.log(respuesta);
+
+
 });
 
-app.put('/usuario', function(req, res) {
 
-    res.json({
-        id: null,
-        request_URL: 'put Usuario',
-        error: 'Ingrese id de usuario a modificar/put'
-    });
-});
 
-app.put('/usuario/:id', function(req, res) {
 
-    let id = req.params.id;
-    res.json({
-        id,
-        request_URL: 'put Usuario'
-    });
-});
+// mongoose.connection.on('error', err => {
+//     console.log(err);
+// });
 
-app.delete('/usuario', function(req, res) {
-    res.json('delete Usuario')
-});
-
-app.get('/hola', function(req, res) {
-    res.send('Hola Mundo')
-});
-
-app.get('/hola/:nombre', function(req, res) {
-    let nomb = req.params.nombre;
-    res.send(`Hola ${nomb}!!!`);
-});
+console.log();
 
 app.listen(puerto, () => {
-    console.log(`Escuchando en el puerto ${puerto}...`);
+    console.log(`Escuchando en el puerto ${puerto}...`.yellow);
 });
